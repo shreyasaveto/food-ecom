@@ -14,9 +14,9 @@ const initDB = async () => {
       await db.query(statement);
     }
 
-    console.log("✅ Database tables created successfully");
+    console.log("Database tables created successfully");
   } catch (err) {
-    console.error("❌ Error creating tables:", err.message);
+    console.error("Error creating tables:", err.message);
   } finally {
     process.exit();
   }

@@ -1,4 +1,3 @@
-// File: src/App.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -11,7 +10,6 @@ import Cart from "./pages/Cart";
 import OrderHistory from "./pages/OrderHistory";
 import PaymentGateway from "./pages/PaymentGateway";
 
-// ✅ Simple token check
 const isLoggedIn = (): boolean => {
   return !!localStorage.getItem("token");
 };
@@ -27,7 +25,7 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/user" element={<User />} />
 
-        {/* 🔐 Protected Routes */}
+        {/* Protected Routes */}
         <Route
           path="/cart"
           element={isLoggedIn() ? <Cart /> : <Navigate to="/user" replace />}

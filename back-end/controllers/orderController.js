@@ -1,6 +1,5 @@
 const db = require("../db");
 
-// ✅ Checkout: Move all cart items to orders table
 const checkoutOrder = async (req, res) => {
   const user_id = req.user.id;
 
@@ -41,7 +40,6 @@ const checkoutOrder = async (req, res) => {
   }
 };
 
-// ✅ Get past orders
 const getOrderHistory = async (req, res) => {
   const user_id = req.user.id;
 

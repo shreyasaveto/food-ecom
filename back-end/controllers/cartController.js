@@ -1,6 +1,5 @@
 const db = require("../db");
 
-// ✅ Add to Cart (uses req.user.id from token)
 const addToCart = async (req, res) => {
   const { product_name, product_image, price, quantity } = req.body;
   const user_id = req.user.id;
@@ -31,7 +30,6 @@ const addToCart = async (req, res) => {
   }
 };
 
-// ✅ Get all items for logged-in user
 const getUserCart = async (req, res) => {
   const user_id = req.user.id;
 
@@ -47,7 +45,6 @@ const getUserCart = async (req, res) => {
   }
 };
 
-// ✅ Update quantity
 const updateQuantity = async (req, res) => {
   const { itemId } = req.params;
   const { quantity } = req.body;
@@ -64,7 +61,6 @@ const updateQuantity = async (req, res) => {
   }
 };
 
-// ✅ Remove from cart
 const removeFromCart = async (req, res) => {
   const { itemId } = req.params;
 

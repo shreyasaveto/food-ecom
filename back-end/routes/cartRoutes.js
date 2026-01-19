@@ -9,9 +9,8 @@ const {
 
 const verifyToken = require("../middleware/authMiddleware");
 
-// 🔐 Protect all routes with verifyToken
 router.post("/add", verifyToken, addToCart);
-router.get("/", verifyToken, getUserCart); // We’ll get user ID from token
+router.get("/", verifyToken, getUserCart); 
 router.put("/update/:itemId", verifyToken, updateQuantity);
 router.delete("/remove/:itemId", verifyToken, removeFromCart);
 

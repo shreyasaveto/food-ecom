@@ -5,11 +5,11 @@ const db = require("./db");
 
 const app = express();
 
-// ✅ Middleware
+// Middleware
 app.use(cors());
-app.use(express.json()); // <-- THIS is required to parse JSON
+app.use(express.json());
 
-// ✅ Routes
+// Routes
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));

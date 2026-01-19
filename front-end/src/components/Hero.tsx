@@ -1,26 +1,3 @@
-// const Hero = () => {
-//   return (
-//     <div
-//       className="text-center text-white d-flex align-items-center justify-content-center"
-//       style={{
-//         backgroundImage: "url(src/assets/images/cafe.png)",
-//         backgroundSize: "cover",
-//         backgroundPosition: "center",
-//         height: "30vh",
-//         backgroundRepeat: "no-repeat",
-//       }}
-//     >
-//       <div>
-//         <h1 className="display-4 bold">Where Freshness Meets Flavor</h1>
-//         <p className="lead">
-//           Experience premium quality food at your doorstep, always fresh and
-//           ready to enjoy.
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
-
 const Hero = () => {
   return (
     <div

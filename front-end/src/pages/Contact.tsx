@@ -1,4 +1,3 @@
-// File: src/pages/Contact.tsx
 import React, { useState } from "react";
 
 const Contact = () => {

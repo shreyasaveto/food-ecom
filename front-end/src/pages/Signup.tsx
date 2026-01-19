@@ -1,4 +1,3 @@
-// File: src/pages/Signup.tsx
 import React, { useState } from "react";
 
 const Signup = () => {

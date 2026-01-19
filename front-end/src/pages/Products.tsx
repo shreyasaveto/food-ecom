@@ -203,7 +203,7 @@ const Products = () => {
         Browse Our Menu
       </h2>
 
-      {/* 🔎 Filter UI */}
+      {/* Filter UI */}
       <div className="row mb-4">
         <div className="col-md-4 mb-2">
           <input
@@ -240,7 +240,7 @@ const Products = () => {
         </div>
       </div>
 
-      {/* 🧾 Product Grid */}
+      {/* Product Grid */}
       <div className="row">
         {filtered.map((product) => (
           <div className="col-md-6 col-lg-4 mb-4" key={product.id}>
