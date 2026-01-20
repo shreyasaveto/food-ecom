@@ -1,0 +1,200 @@
+# Azure Event Grid Integration Plan for Food E-Commerce Website
+
+## Overview
+This plan outlines the step-by-step integration of Azure Event Grid into the food e-commerce website. After a successful checkout, an event will be published to Azure Event Grid with order details. Event subscribers will handle sending emails (user confirmation, warehouse intimation, seller/admin notification), appending data to two external services/databases, and logging to a log.txt file.
+
+## Prerequisites
+- Azure subscription with access to Event Grid, Functions, Storage, etc.
+- Node.js back-end with Azure SDK for Event Grid
+- Email service (e.g., SendGrid, Azure Communication Services, or SMTP)
+- Access to two external services/databases for data appending
+- Azure Storage account for log.txt file (or local file system if not cloud-based)
+
+## Assumptions
+- External services: Assume two REST APIs or databases (e.g., MongoDB, SQL) where order data needs to be appended.
+- Emails: Use Azure Functions with email libraries (e.g., nodemailer for SMTP, or Azure Email Communication Service).
+- Logging: Append to a log.txt file in Azure Blob Storage or local file.
+- Seller/Admin email: Hardcoded or from environment variable (e.g., admin@defaultcafe.com).
+- Warehouse email: Hardcoded or configurable.
+- User email: Retrieved from users table using user_id.
+
+## Step-by-Step Plan
+
+### Step 1: Set Up Azure Resources
+1. Create an Azure Resource Group for the project (e.g., food-ecommerce-rg).
+2. Create an Azure Event Grid Topic:
+   - Name: food-ecommerce-orders-topic
+   - Location: Choose appropriate region
+   - Note the Topic Endpoint and Access Key (or use Managed Identity).
+3. Create Azure Functions for event handlers:
+   - Function App: food-ecommerce-functions
+   - Runtime: Node.js
+   - Create functions:
+     - SendUserConfirmationEmail
+     - SendWarehouseEmail
+     - SendSellerEmail
+     - AppendToExternalService1
+     - AppendToExternalService2
+     - AppendToLog
+4. Set up Azure Storage Account for log.txt:
+   - Create Storage Account: foodecommerce storage
+   - Create Blob Container: logs
+   - Upload initial log.txt or create via code.
+5. Configure Event Grid Subscriptions:
+   - For each function, create a subscription to the topic with appropriate filters (e.g., event type: "OrderPlaced").
+
+### Step 2: Modify Back-End Code to Publish Events
+Location: back-end/controllers/orderController.js
+
+After successful order insertion, publish an event to Event Grid.
+
+#### Code Changes:
+Install Azure Event Grid SDK:
+```bash
+npm install @azure/eventgrid
+```
+
+In orderController.js, add imports:
+```javascript
+const { EventGridPublisherClient, AzureKeyCredential } = require("@azure/eventgrid");
+```
+
+Add environment variables (in .env or Azure App Settings):
+- EVENTGRID_TOPIC_ENDPOINT
+- EVENTGRID_ACCESS_KEY
+
+After line 46 (after insert), add:
+```javascript
+// Publish event to Azure Event Grid
+const publisher = new EventGridPublisherClient(
+  process.env.EVENTGRID_TOPIC_ENDPOINT,
+  new AzureKeyCredential(process.env.EVENTGRID_ACCESS_KEY)
+);
+
+const eventData = {
+  id: order_id,
+  user_id: user_id,
+  products: products,
+  product_images: product_images,
+  prices: prices,
+  quantities: quantities,
+  total_quantity: total_quantity,
+  total_price: total_price,
+  ordered_at: new Date().toISOString(),
+  user_email: (await db.query("SELECT email FROM users WHERE id = $1", [user_id])).rows[0].email,
+  // Add other necessary data
+};
+
+const events = [
+  {
+    eventType: "OrderPlaced",
+    subject: `order/${order_id}`,
+    dataVersion: "1.0",
+    data: eventData,
+  },
+];
+
+try {
+  await publisher.send(events);
+  console.log("Event published to Event Grid");
+} catch (error) {
+  console.error("Failed to publish event:", error);
+  // Handle error, perhaps log or retry
+}
+```
+
+### Step 3: Implement Email Event Handlers
+Create Azure Functions (Node.js) for each email.
+
+#### General Structure for Email Functions:
+```javascript
+module.exports = async function (context, eventGridEvent) {
+  const orderData = eventGridEvent.data;
+  // Logic to send email
+  // Use nodemailer or Azure SDK
+};
+```
+
+#### SendUserConfirmationEmail Function:
+- Retrieve user email from orderData.user_email
+- Compose email: "Order Confirmation - Order ID: {order_id}", include order details.
+- Send via email service.
+
+#### SendWarehouseEmail Function:
+- Hardcoded warehouse email (e.g., warehouse@company.com)
+- Compose email: "New Order Intimation - Order ID: {order_id}", include products, quantities, etc.
+
+#### SendSellerEmail Function:
+- Hardcoded seller email (e.g., admin@defaultcafe.com)
+- Compose email: "New Order Notification - Order ID: {order_id}", include full order details.
+
+For email sending, use a library like nodemailer with SMTP, or Azure Communication Services.
+
+### Step 4: Implement External Service Appenders
+Create Azure Functions to append data to external services.
+
+#### AppendToExternalService1 Function:
+- Assume external service is a REST API.
+- POST orderData to external endpoint (e.g., https://external-service1.com/orders)
+- Handle authentication if needed (API key, etc.)
+
+#### AppendToExternalService2 Function:
+- Similar to above, different endpoint or database.
+- If database, use appropriate SDK (e.g., mongoose for MongoDB, mssql for SQL Server).
+
+### Step 5: Implement Logging Handler
+#### AppendToLog Function:
+- Use Azure Storage SDK to append to log.txt in Blob Storage.
+- Install @azure/storage-blob
+- Code:
+```javascript
+const { BlobServiceClient } = require("@azure/storage-blob");
+
+module.exports = async function (context, eventGridEvent) {
+  const orderData = eventGridEvent.data;
+  const logEntry = `Order ${orderData.id} placed at ${orderData.ordered_at}\n`;
+
+  const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  const containerClient = blobServiceClient.getContainerClient("logs");
+  const blobClient = containerClient.getBlockBlobClient("log.txt");
+
+  // Download existing content, append, upload
+  let existingContent = "";
+  try {
+    const downloadResponse = await blobClient.download();
+    existingContent = (await streamToString(downloadResponse.readableStreamBody)).toString();
+  } catch (e) {
+    // File doesn't exist, start empty
+  }
+
+  const newContent = existingContent + logEntry;
+  await blobClient.upload(newContent, newContent.length);
+};
+```
+
+Helper function streamToString.
+
+### Step 6: Testing
+1. Test checkout locally, ensure event is published (check Azure portal or logs).
+2. Verify emails are sent (use test emails).
+3. Check external services have data appended.
+4. Verify log.txt is updated.
+
+### Step 7: Deployment
+1. Deploy back-end to Azure App Service or similar.
+2. Deploy Functions to Azure.
+3. Configure environment variables in Azure.
+4. Test end-to-end in production.
+
+## Potential Issues and Solutions
+- Event delivery failures: Implement retry logic in publishers/subscribers.
+- Email failures: Use dead-letter queues in Event Grid.
+- Data consistency: Ensure order is committed before publishing event.
+- Security: Use Managed Identities instead of access keys.
+
+## Cost Considerations
+- Event Grid: Pay per million operations.
+- Functions: Pay per execution.
+- Storage: Minimal for logs.
+
+This plan provides a complete roadmap for integration. Adjust specifics based on actual external services and email providers.
