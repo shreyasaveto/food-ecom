@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-interface OrderItem {
-  id: number;
-  product_name: string;
-  product_image: string;
-  quantity: number;
-  price: number;
+interface Order {
+  id: string;
+  products: string[];
+  product_images: string[];
+  prices: number[];
+  quantities: number[];
+  total_quantity: number;
+  total_price: number;
   ordered_at: string;
 }
 
 const OrderHistory = () => {
-  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
@@ -48,24 +50,26 @@ const OrderHistory = () => {
         <p className="text-center">No past orders found.</p>
       ) : (
         <div className="row">
-          {orders.map((item) => (
-            <div key={item.id} className="col-md-4 mb-4">
+          {orders.map((order) => (
+            <div key={order.id} className="col-md-6 mb-4">
               <div className="card h-100">
-                <img
-                  src={item.product_image}
-                  className="card-img-top"
-                  alt={item.product_name}
-                  height={200}
-                />
                 <div className="card-body">
-                  <h5 className="card-title">{item.product_name}</h5>
+                  <h5 className="card-title">Order #{order.id}</h5>
                   <p className="card-text">
-                    Quantity: {item.quantity}
+                    <strong>Items:</strong>
+                    <ul>
+                      {order.products.map((product, index) => (
+                        <li key={index}>
+                          {product} - Qty: {order.quantities[index]} - Price: ₹{(order.prices[index] * order.quantities[index]).toFixed(2)}
+                        </li>
+                      ))}
+                    </ul>
+                    <strong>Total Quantity:</strong> {order.total_quantity}
                     <br />
-                    Price: ₹{(item.price * item.quantity).toFixed(2)}
+                    <strong>Total Price:</strong> ₹{order.total_price.toFixed(2)}
                     <br />
                     <small className="text-muted">
-                      Ordered at: {new Date(item.ordered_at).toLocaleString()}
+                      Ordered at: {new Date(order.ordered_at).toLocaleString()}
                     </small>
                   </p>
                 </div>

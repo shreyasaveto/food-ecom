@@ -1,5 +1,10 @@
-const { Pool } = require("pg");
+const { Pool, types } = require("pg");
 require("dotenv").config();
+
+// Parse arrays as arrays instead of strings
+types.setTypeParser(1009, (val) => val); // text[]
+types.setTypeParser(1016, (val) => val); // int4[]
+types.setTypeParser(1231, (val) => val); // numeric[]
 
 const pool = new Pool({
   user: process.env.DB_USER,
