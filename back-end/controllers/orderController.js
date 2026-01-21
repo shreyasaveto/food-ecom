@@ -1,4 +1,5 @@
 const db = require("../db");
+const { sendUserConfirmationEmail, sendWarehouseEmail, sendAdminEmail } = require("../utils/email");
 
 const checkoutOrder = async (req, res) => {
   const user_id = req.user.id;
@@ -47,6 +48,27 @@ const checkoutOrder = async (req, res) => {
 
     // Clear the cart
     await db.query("DELETE FROM cart_items WHERE user_id = $1", [user_id]);
+
+    // Get user email
+    const userResult = await db.query("SELECT email FROM users WHERE id = $1", [user_id]);
+    const userEmail = userResult.rows[0].email;
+
+    const orderDetails = {
+      order_id,
+      products,
+      quantities,
+      prices,
+      total_price,
+      total_quantity,
+      user_email: userEmail
+    };
+
+    // Send emails
+    await Promise.all([
+      sendUserConfirmationEmail(userEmail, orderDetails),
+      sendWarehouseEmail(orderDetails),
+      sendAdminEmail(orderDetails)
+    ]);
 
     res.json({ message: "Checkout successful. Order placed!" });
   } catch (err) {
