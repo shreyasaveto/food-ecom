@@ -15,15 +15,15 @@ const sendUserConfirmationEmail = async (to, orderDetails) => {
     <tr>
       <td>${product}</td>
       <td>${quantities[index]}</td>
-      <td>$${prices[index]}</td>
-      <td>$${(prices[index] * quantities[index]).toFixed(2)}</td>
+      <td>₹${prices[index]}</td>
+      <td>₹${(prices[index] * quantities[index]).toFixed(2)}</td>
     </tr>
   `).join('');
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
-    subject: 'Order Confirmation - POSH E-Commerce',
+    subject: 'Order Confirmation - FOOD E-Commerce',
     html: `
       <h2>Thank you for your order!</h2>
       <p>Your order has been placed successfully.</p>
@@ -41,7 +41,7 @@ const sendUserConfirmationEmail = async (to, orderDetails) => {
           ${itemsHtml}
         </tbody>
       </table>
-      <p><strong>Total Price:</strong> $${total_price}</p>
+      <p><strong>Total Price:</strong> ₹${total_price}</p>
       <p>We will process your order shortly.</p>
     `
   };
@@ -102,8 +102,8 @@ const sendAdminEmail = async (orderDetails) => {
     <tr>
       <td>${product}</td>
       <td>${quantities[index]}</td>
-      <td>$${prices[index]}</td>
-      <td>$${(prices[index] * quantities[index]).toFixed(2)}</td>
+      <td>₹${prices[index]}</td>
+      <td>₹${(prices[index] * quantities[index]).toFixed(2)}</td>
     </tr>
   `).join('');
 
@@ -129,7 +129,7 @@ const sendAdminEmail = async (orderDetails) => {
           ${itemsHtml}
         </tbody>
       </table>
-      <p><strong>Total Price:</strong> $${total_price}</p>
+      <p><strong>Total Price:</strong> ₹${total_price}</p>
     `
   };
 
