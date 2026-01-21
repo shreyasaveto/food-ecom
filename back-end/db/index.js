@@ -14,8 +14,20 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
-pool.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch((err) => console.error("DB connection error:", err));
+const backupPool = new Pool({
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  database: 'sap-test',
+});
 
-module.exports = pool;
+pool.connect()
+  .then(() => console.log("Connected to main PostgreSQL DB"))
+  .catch((err) => console.error("Main DB connection error:", err));
+
+backupPool.connect()
+  .then(() => console.log("Connected to backup PostgreSQL DB"))
+  .catch((err) => console.error("Backup DB connection error:", err));
+
+module.exports = { pool, backupPool };

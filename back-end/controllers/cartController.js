@@ -1,25 +1,25 @@
-const db = require("../db");
+const { pool } = require("../db");
 
 const addToCart = async (req, res) => {
   const { product_name, product_image, price, quantity } = req.body;
   const user_id = req.user.id;
 
   try {
-    const existing = await db.query(
+    const existing = await pool.query(
       "SELECT * FROM cart_items WHERE user_id = $1 AND product_name = $2",
       [user_id, product_name]
     );
 
     if (existing.rows.length > 0) {
       const newQty = existing.rows[0].quantity + quantity;
-      await db.query("UPDATE cart_items SET quantity = $1 WHERE id = $2", [
+      await pool.query("UPDATE cart_items SET quantity = $1 WHERE id = $2", [
         newQty,
         existing.rows[0].id,
       ]);
       return res.json({ message: "Cart updated (quantity increased)" });
     }
 
-    await db.query(
+    await pool.query(
       "INSERT INTO cart_items (user_id, product_name, product_image, price, quantity) VALUES ($1, $2, $3, $4, $5)",
       [user_id, product_name, product_image, price, quantity]
     );
@@ -34,7 +34,7 @@ const getUserCart = async (req, res) => {
   const user_id = req.user.id;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "SELECT * FROM cart_items WHERE user_id = $1",
       [user_id]
     );
@@ -50,7 +50,7 @@ const updateQuantity = async (req, res) => {
   const { quantity } = req.body;
 
   try {
-    await db.query(
+    await pool.query(
       "UPDATE cart_items SET quantity = $1 WHERE id = $2",
       [quantity, itemId]
     );
@@ -65,7 +65,7 @@ const removeFromCart = async (req, res) => {
   const { itemId } = req.params;
 
   try {
-    await db.query("DELETE FROM cart_items WHERE id = $1", [itemId]);
+    await pool.query("DELETE FROM cart_items WHERE id = $1", [itemId]);
     res.json({ message: "Item removed from cart" });
   } catch (err) {
     console.error("Remove error:", err.message);

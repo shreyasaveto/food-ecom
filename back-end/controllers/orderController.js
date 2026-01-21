@@ -1,12 +1,13 @@
-const db = require("../db");
+const { pool } = require("../db");
 const { sendUserConfirmationEmail, sendWarehouseEmail, sendAdminEmail } = require("../utils/email");
+const { backupOrder } = require("../utils/backup");
 
 const checkoutOrder = async (req, res) => {
   const user_id = req.user.id;
 
   try {
     // Get all cart items
-    const cartItems = await db.query(
+    const cartItems = await pool.query(
       "SELECT * FROM cart_items WHERE user_id = $1",
       [user_id]
     );
@@ -27,10 +28,10 @@ const checkoutOrder = async (req, res) => {
     let order_id;
     do {
       order_id = Math.floor(1000000 + Math.random() * 9000000).toString();
-    } while ((await db.query("SELECT 1 FROM orders WHERE id = $1", [order_id])).rows.length > 0);
+    } while ((await pool.query("SELECT 1 FROM orders WHERE id = $1", [order_id])).rows.length > 0);
 
     // Insert into orders table
-    await db.query(
+    await pool.query(
       `INSERT INTO orders
        (id, user_id, products, product_images, prices, quantities, total_quantity, total_price)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
@@ -46,11 +47,15 @@ const checkoutOrder = async (req, res) => {
       ]
     );
 
+    // Get the inserted order for backup
+    const insertedOrder = await pool.query("SELECT * FROM orders WHERE id = $1", [order_id]);
+    await backupOrder(insertedOrder.rows[0]);
+
     // Clear the cart
-    await db.query("DELETE FROM cart_items WHERE user_id = $1", [user_id]);
+    await pool.query("DELETE FROM cart_items WHERE user_id = $1", [user_id]);
 
     // Get user email
-    const userResult = await db.query("SELECT email FROM users WHERE id = $1", [user_id]);
+    const userResult = await pool.query("SELECT email FROM users WHERE id = $1", [user_id]);
     const userEmail = userResult.rows[0].email;
 
     const orderDetails = {
@@ -81,7 +86,7 @@ const getOrderHistory = async (req, res) => {
   const user_id = req.user.id;
 
   try {
-    const result = await db.query(
+    const result = await pool.query(
       "SELECT * FROM orders WHERE user_id = $1 ORDER BY ordered_at DESC",
       [user_id]
     );

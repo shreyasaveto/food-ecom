@@ -1,23 +1,27 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const db = require("../db");
+const { pool } = require("../db");
+const { backupUser } = require("../utils/backup");
 
 // REGISTER
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    const existing = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    const existing = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (existing.rows.length > 0) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await db.query(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email",
+    const result = await pool.query(
+      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
       [name, email, hashedPassword]
     );
+
+    // Backup user data
+    await backupUser(result.rows[0]);
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -32,7 +36,7 @@ const loginUser = async (req, res) => {
 
   try {
     console.log("Login attempt for:", email);
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     const user = result.rows[0];
 
     if (!user) {
