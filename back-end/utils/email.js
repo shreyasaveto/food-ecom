@@ -70,7 +70,7 @@ const sendWarehouseEmail = async (orderDetails) => {
     subject: `New Order Intimation - Order ID: ${order_id}`,
     html: `
       <h2>New Order Received</h2>
-      <p>Please prepare the following items for shipment.</p>
+      <p>Please prepare following items for shipment.</p>
       <p><strong>Order ID:</strong> ${order_id}</p>
       <p><strong>Total Quantity:</strong> ${total_quantity}</p>
       <table border="1" style="border-collapse: collapse;">
