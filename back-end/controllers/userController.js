@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { pool } = require("../db");
-const { backupUser } = require("../utils/backup");
+const { publishEvent } = require("../utils/eventGrid");
 
 // REGISTER
 const registerUser = async (req, res) => {
@@ -20,8 +20,8 @@ const registerUser = async (req, res) => {
       [name, email, hashedPassword]
     );
 
-    // Backup user data
-    await backupUser(result.rows[0]);
+    // Publish event to Event Grid
+    await publishEvent("UserCreated", result.rows[0]);
 
     res.status(201).json(result.rows[0]);
   } catch (err) {

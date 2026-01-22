@@ -107,7 +107,7 @@ const insertOrder = async (orderData) => {
        (id, user_id, products, product_images, prices, quantities, total_quantity, total_price, ordered_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (id) DO NOTHING`,
       [
-        orderData.id,
+        orderData.order_id,
         orderData.user_id,
         orderData.products,
         orderData.product_images,

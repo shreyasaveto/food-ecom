@@ -13,9 +13,10 @@ app.use(express.json());
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/webhooks", require("./routes/webhookRoutes"));
 
 app.get("/", (req, res) => {
-  res.send("POSH Backend API is running 🚀");
+  res.send("FOOD Backend API is running");
 });
 
 const PORT = process.env.PORT || 5000;

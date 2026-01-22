@@ -1,6 +1,5 @@
 const { pool } = require("../db");
-const { sendUserConfirmationEmail, sendWarehouseEmail, sendAdminEmail } = require("../utils/email");
-const { backupOrder } = require("../utils/backup");
+const { publishEvent } = require("../utils/eventGrid");
 
 const checkoutOrder = async (req, res) => {
   const user_id = req.user.id;
@@ -47,10 +46,6 @@ const checkoutOrder = async (req, res) => {
       ]
     );
 
-    // Get the inserted order for backup
-    const insertedOrder = await pool.query("SELECT * FROM orders WHERE id = $1", [order_id]);
-    await backupOrder(insertedOrder.rows[0]);
-
     // Clear the cart
     await pool.query("DELETE FROM cart_items WHERE user_id = $1", [user_id]);
 
@@ -60,7 +55,9 @@ const checkoutOrder = async (req, res) => {
 
     const orderDetails = {
       order_id,
+      user_id,
       products,
+      product_images,
       quantities,
       prices,
       total_price,
@@ -68,12 +65,8 @@ const checkoutOrder = async (req, res) => {
       user_email: userEmail
     };
 
-    // Send emails
-    await Promise.all([
-      sendUserConfirmationEmail(userEmail, orderDetails),
-      sendWarehouseEmail(orderDetails),
-      sendAdminEmail(orderDetails)
-    ]);
+    // Publish event to Event Grid
+    await publishEvent("OrderCreated", orderDetails);
 
     res.json({ message: "Checkout successful. Order placed!" });
   } catch (err) {
