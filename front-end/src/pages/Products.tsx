@@ -3,7 +3,7 @@ import ProductCard from "../components/ProductCard";
 
 const allProducts = [
   {
-    id: 1,
+    id: "GG-7248",
     name: "Pizza Margherita",
     description: "Classic tomato sauce, mozzarella & fresh basil.",
     price: 499,
@@ -11,7 +11,7 @@ const allProducts = [
     category: "Pizza",
   },
   {
-    id: 2,
+    id: "GG-7847",
     name: "Pepperoni Pizza",
     description: "Spicy pepperoni and mozzarella on a crispy crust.",
     price: 549,
@@ -19,7 +19,7 @@ const allProducts = [
     category: "Pizza",
   },
   {
-    id: 3,
+    id: "GG-7846",
     name: "BBQ Chicken Pizza",
     description: "Chicken, BBQ sauce, and onions on a golden crust.",
     price: 599,
@@ -27,7 +27,7 @@ const allProducts = [
     category: "Pizza",
   },
   {
-    id: 4,
+    id: "GG-7845",
     name: "Spaghetti Alfredo",
     description: "Creamy Alfredo sauce tossed with tender spaghetti.",
     price: 599,
@@ -35,7 +35,7 @@ const allProducts = [
     category: "Pasta",
   },
   {
-    id: 5,
+    id: "GG-7844",
     name: "Penne Arrabbiata",
     description: "Spicy tomato garlic sauce with penne pasta.",
     price: 649,
@@ -43,7 +43,7 @@ const allProducts = [
     category: "Pasta",
   },
   {
-    id: 6,
+    id: "GG-7843",
     name: "Lasagna",
     description: "Layers of pasta, cheese, and rich meat sauce.",
     price: 699,
@@ -51,7 +51,7 @@ const allProducts = [
     category: "Pasta",
   },
   {
-    id: 7,
+    id: "GG-7842",
     name: "Espresso",
     description: "Strong and rich coffee brewed under pressure.",
     price: 399,
@@ -59,7 +59,7 @@ const allProducts = [
     category: "Beverages",
   },
   {
-    id: 8,
+    id: "GG-7841",
     name: "Iced Tea",
     description: "Refreshing black tea with lemon and mint.",
     price: 449,
@@ -67,7 +67,7 @@ const allProducts = [
     category: "Beverages",
   },
   {
-    id: 9,
+    id: "GG-7840",
     name: "Hot Chocolate",
     description: "Warm chocolate drink with whipped cream.",
     price: 499,
@@ -75,7 +75,7 @@ const allProducts = [
     category: "Beverages",
   },
   {
-    id: 10,
+    id: "GG-7839",
     name: "Veggie Burger",
     description: "Grilled veggie patty with fresh toppings.",
     price: 399,
@@ -83,7 +83,7 @@ const allProducts = [
     category: "Burger",
   },
   {
-    id: 11,
+    id: "GG-7838",
     name: "Cheese Burger",
     description: "Juicy beef patty with melted cheese.",
     price: 449,
@@ -91,7 +91,7 @@ const allProducts = [
     category: "Burger",
   },
   {
-    id: 12,
+    id: "GG-7836",
     name: "Crispy Chicken Burger",
     description: "Crispy chicken filet with spicy sauce.",
     price: 499,
@@ -99,7 +99,7 @@ const allProducts = [
     category: "Burger",
   },
   {
-    id: 13,
+    id: "GG-7835",
     name: "Café Latte",
     description: "Smooth espresso with steamed milk.",
     price: 299,
@@ -107,7 +107,7 @@ const allProducts = [
     category: "Cafe Special",
   },
   {
-    id: 14,
+    id: "GG-7719",
     name: "Cappuccino",
     description: "Rich espresso with foam and cinnamon.",
     price: 349,
@@ -115,7 +115,7 @@ const allProducts = [
     category: "Cafe Special",
   },
   {
-    id: 15,
+    id: "GG-7769",
     name: "Mocha",
     description: "Chocolate espresso topped with cream.",
     price: 399,
@@ -123,7 +123,7 @@ const allProducts = [
     category: "Cafe Special",
   },
   {
-    id: 16,
+    id: "GG-7745",
     name: "Chocolate Lava Cake",
     description: "Warm chocolate cake with molten center.",
     price: 199,
@@ -131,7 +131,7 @@ const allProducts = [
     category: "Desserts",
   },
   {
-    id: 17,
+    id: "GG-7723",
     name: "Strawberry Cheesecake",
     description: "Creamy cheesecake topped with strawberries.",
     price: 299,
@@ -139,7 +139,7 @@ const allProducts = [
     category: "Desserts",
   },
   {
-    id: 18,
+    id: "GG-7722",
     name: "Tiramisu",
     description: "Coffee-flavored Italian dessert.",
     price: 399,
@@ -147,7 +147,7 @@ const allProducts = [
     category: "Desserts",
   },
   {
-    id: 19,
+    id: "GG-7721",
     name: "Butter Croissant",
     description: "Flaky and buttery French pastry.",
     price: 199,
@@ -155,7 +155,7 @@ const allProducts = [
     category: "Croissant",
   },
   {
-    id: 20,
+    id: "GG-5584",
     name: "Chocolate Croissant",
     description: "Croissant filled with rich chocolate.",
     price: 249,
@@ -163,7 +163,7 @@ const allProducts = [
     category: "Croissant",
   },
   {
-    id: 21,
+    id: "GG-1114",
     name: "Almond Croissant",
     description: "Topped and filled with almond paste.",
     price: 299,

@@ -9,6 +9,7 @@ import User from "./pages/User";
 import Cart from "./pages/Cart";
 import OrderHistory from "./pages/OrderHistory";
 import PaymentGateway from "./pages/PaymentGateway";
+import Admin from "./pages/Admin";
 
 const isLoggedIn = (): boolean => {
   return !!localStorage.getItem("token");
@@ -38,6 +39,12 @@ const App = () => {
           path="/orders"
           element={
             isLoggedIn() ? <OrderHistory /> : <Navigate to="/user" replace />
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            isLoggedIn() ? <Admin /> : <Navigate to="/user" replace />
           }
         />
       </Routes>

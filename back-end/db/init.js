@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const db = require("./index");
+const { pool } = require("./index");
 
 const initDB = async () => {
   try {
@@ -11,7 +11,7 @@ const initDB = async () => {
     const statements = schema.split(";").filter(stmt => stmt.trim().length > 0);
 
     for (const statement of statements) {
-      await db.query(statement);
+      await pool.query(statement);
     }
 
     console.log("Database tables created successfully");

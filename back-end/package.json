@@ -20,6 +20,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.12",
+    "oauth-1.0a": "^2.2.6",
     "pg": "^8.14.1"
   },
   "devDependencies": {

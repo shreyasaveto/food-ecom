@@ -30,3 +30,12 @@ CREATE TABLE IF NOT EXISTS orders (
     total_price DECIMAL(10, 2) NOT NULL,
     ordered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create order_events table
+CREATE TABLE IF NOT EXISTS order_events (
+    id SERIAL PRIMARY KEY,
+    order_id VARCHAR(7) REFERENCES orders(id) ON DELETE CASCADE,
+    event_type VARCHAR(50) NOT NULL, -- 'user_email', 'admin_email', 'warehouse_email', 'backup'
+    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- 'pending', 'success', 'failed'
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

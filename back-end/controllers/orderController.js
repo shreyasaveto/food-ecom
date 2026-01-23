@@ -1,5 +1,31 @@
 const { pool } = require("../db");
 const { publishEvent } = require("../utils/eventGrid");
+const { callNetSuiteAPI } = require("../utils/netsuite");
+
+// Product name to ID mapping
+const productMapping = {
+  "Pizza Margherita": "GG-7248",
+  "Pepperoni Pizza": "GG-7847",
+  "BBQ Chicken Pizza": "GG-7846",
+  "Spaghetti Alfredo": "GG-7845",
+  "Penne Arrabbiata": "GG-7844",
+  "Lasagna": "GG-7843",
+  "Espresso": "GG-7842",
+  "Iced Tea": "GG-7841",
+  "Hot Chocolate": "GG-7840",
+  "Veggie Burger": "GG-7839",
+  "Cheese Burger": "GG-7838",
+  "Crispy Chicken Burger": "GG-7836",
+  "Café Latte": "GG-7835",
+  "Cappuccino": "GG-7719",
+  "Mocha": "GG-7769",
+  "Chocolate Lava Cake": "GG-7745",
+  "Strawberry Cheesecake": "GG-7723",
+  "Tiramisu": "GG-7722",
+  "Butter Croissant": "GG-7721",
+  "Chocolate Croissant": "GG-5584",
+  "Almond Croissant": "GG-1114",
+};
 
 const checkoutOrder = async (req, res) => {
   const user_id = req.user.id;
@@ -30,10 +56,11 @@ const checkoutOrder = async (req, res) => {
     } while ((await pool.query("SELECT 1 FROM orders WHERE id = $1", [order_id])).rows.length > 0);
 
     // Insert into orders table
-    await pool.query(
+    const insertResult = await pool.query(
       `INSERT INTO orders
        (id, user_id, products, product_images, prices, quantities, total_quantity, total_price)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING ordered_at`,
       [
         order_id,
         user_id,
@@ -45,6 +72,7 @@ const checkoutOrder = async (req, res) => {
         total_price,
       ]
     );
+    const ordered_at = insertResult.rows[0].ordered_at;
 
     // Clear the cart
     await pool.query("DELETE FROM cart_items WHERE user_id = $1", [user_id]);
@@ -62,7 +90,8 @@ const checkoutOrder = async (req, res) => {
       prices,
       total_price,
       total_quantity,
-      user_email: userEmail
+      user_email: userEmail,
+      ordered_at: ordered_at
     };
 
     // Publish event to Event Grid
@@ -140,7 +169,81 @@ const getOrderHistory = async (req, res) => {
   }
 };
 
+const getAllOrders = async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM orders ORDER BY ordered_at DESC"
+    );
+
+    // Parse PostgreSQL array string (same as in getOrderHistory)
+    const parsePgArray = (str) => {
+      if (!str || str === '{}') return [];
+      str = str.slice(1, -1); // remove {}
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        if (char === '"') {
+          if (inQuotes && str[i + 1] === '"') {
+            current += '"';
+            i++; // skip next
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    };
+
+    const parseArray = (str) => {
+      if (typeof str === 'string') {
+        const arr = parsePgArray(str);
+        if (str.includes('.') || str.match(/\d/)) {
+          return arr.map(x => parseFloat(x));
+        } else {
+          return arr;
+        }
+      }
+      return str;
+    };
+
+    const orders = result.rows.map(order => ({
+      ...order,
+      products: parseArray(order.products),
+      product_images: parseArray(order.product_images),
+      prices: parseArray(order.prices),
+      quantities: parseArray(order.quantities),
+      total_price: parseFloat(order.total_price),
+    }));
+
+    // Fetch events for each order
+    for (const order of orders) {
+      const eventsResult = await pool.query(
+        "SELECT event_type, status FROM order_events WHERE order_id = $1",
+        [order.id]
+      );
+      order.events = eventsResult.rows.reduce((acc, event) => {
+        acc[event.event_type] = event.status;
+        return acc;
+      }, {});
+    }
+
+    res.json(orders);
+  } catch (err) {
+    console.error("All orders error:", err.message);
+    res.status(500).json({ message: "Failed to fetch all orders" });
+  }
+};
+
 module.exports = {
   checkoutOrder,
   getOrderHistory,
+  getAllOrders,
 };

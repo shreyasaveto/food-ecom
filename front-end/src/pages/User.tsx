@@ -33,7 +33,11 @@ const User = () => {
         localStorage.setItem("user", JSON.stringify(response.data.user));
         alert(`Welcome ${response.data.user.name}!`);
         // Refresh app so Header, Cart, Orders update
-        window.location.href = "/";
+        if (email === "shreyas.r+admin@avetoconsulting.com") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
       } else {
         await axios.post("http://localhost:5000/api/users/register", {
           name,
